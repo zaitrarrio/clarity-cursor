@@ -9,6 +9,21 @@ export type ReportKind =
   | 'go-to-market-strategy'
   | 'go-to-market-plan'
 
+export type WorkspaceSectionKey =
+  | 'dashboard'
+  | 'projects'
+  | 'research'
+  | 'personas'
+  | 'concepts'
+  | 'go-to-market-strategy'
+  | 'go-to-market-plan'
+  | 'campaigns'
+  | 'content'
+  | 'measurement'
+  | 'reports'
+  | 'collaboration'
+  | 'settings'
+
 export interface ResearchSource {
   readonly id: number
   readonly title: string
@@ -184,6 +199,8 @@ export interface WorkspaceRecord {
   readonly activeReportId: string | null
   readonly selectedCitationId: number | null
   readonly errorMessage: string | null
+  readonly activeSection: WorkspaceSectionKey
+  readonly collaborationNotes: readonly string[]
   readonly createdAt: string
   readonly updatedAt: string
 }

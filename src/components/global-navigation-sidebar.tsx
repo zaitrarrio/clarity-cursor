@@ -1,27 +1,29 @@
 import { useState } from 'react'
 
-import type { WorkspaceRecord } from '@/types/clarity-types'
+import type { WorkspaceRecord, WorkspaceSectionKey } from '@/types/clarity-types'
 
-const navSections = [
-  'Dashboard',
-  'Projects',
-  'Research',
-  'Personas',
-  'Concepts',
-  'Go-To-Market Strategy',
-  'Go-To-Market Plan',
-  'Campaigns',
-  'Content',
-  'Measurement',
-  'Reports',
-  'Collaboration',
-  'Settings',
-] as const
+const navSections: ReadonlyArray<{ key: WorkspaceSectionKey; label: string }> = [
+  { key: 'dashboard', label: 'Dashboard' },
+  { key: 'projects', label: 'Projects' },
+  { key: 'research', label: 'Research' },
+  { key: 'personas', label: 'Personas' },
+  { key: 'concepts', label: 'Concepts' },
+  { key: 'go-to-market-strategy', label: 'Go-To-Market Strategy' },
+  { key: 'go-to-market-plan', label: 'Go-To-Market Plan' },
+  { key: 'campaigns', label: 'Campaigns' },
+  { key: 'content', label: 'Content' },
+  { key: 'measurement', label: 'Measurement' },
+  { key: 'reports', label: 'Reports' },
+  { key: 'collaboration', label: 'Collaboration' },
+  { key: 'settings', label: 'Settings' },
+]
 
 interface GlobalNavigationSidebarProps {
   readonly workspaces: readonly WorkspaceRecord[]
   readonly activeWorkspaceId: string
+  readonly activeSection: WorkspaceSectionKey
   readonly recentPrompts: readonly string[]
+  readonly onSelectSection: (section: WorkspaceSectionKey) => void
   readonly onCreateWorkspace: (name: string) => void
   readonly onSwitchWorkspace: (workspaceId: string) => void
   readonly onRenameWorkspace: (workspaceId: string, name: string) => void
@@ -32,7 +34,9 @@ interface GlobalNavigationSidebarProps {
 export const GlobalNavigationSidebar = ({
   workspaces,
   activeWorkspaceId,
+  activeSection,
   recentPrompts,
+  onSelectSection,
   onCreateWorkspace,
   onSwitchWorkspace,
   onRenameWorkspace,
@@ -116,8 +120,13 @@ export const GlobalNavigationSidebar = ({
         <p className="section-title">Platform navigation</p>
         <div className="stack-sm">
           {navSections.map((section) => (
-            <button className="section-link" key={section} type="button">
-              {section}
+            <button
+              className={activeSection === section.key ? 'section-link active' : 'section-link'}
+              key={section.key}
+              onClick={() => onSelectSection(section.key)}
+              type="button"
+            >
+              {section.label}
             </button>
           ))}
         </div>

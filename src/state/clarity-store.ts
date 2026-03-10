@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 
 import { buildAnalysisBundle } from '@/lib/report-factory'
 import { fetchDeepResearch } from '@/lib/research-api'
-import type { WorkspaceRecord } from '@/types/clarity-types'
+import type { WorkspaceRecord, WorkspaceSectionKey } from '@/types/clarity-types'
 
 const emptyPrompt = 'I want to sell luxury handbags to women in North America.'
 const initialWorkspaceName = 'Workspace 1'
@@ -12,6 +12,7 @@ interface ClarityState {
   readonly workspaces: readonly WorkspaceRecord[]
   readonly activeWorkspaceId: string
   readonly isAnalyzing: boolean
+  readonly selectSection: (section: WorkspaceSectionKey) => void
   readonly createWorkspace: (name: string) => void
   readonly switchWorkspace: (workspaceId: string) => void
   readonly renameWorkspace: (workspaceId: string, name: string) => void
@@ -45,6 +46,8 @@ const buildWorkspace = (name: string): WorkspaceRecord => {
     activeReportId: null,
     selectedCitationId: null,
     errorMessage: null,
+    activeSection: 'dashboard',
+    collaborationNotes: [],
     createdAt: now,
     updatedAt: now,
   }
@@ -86,6 +89,12 @@ export const useClarityStore = create<ClarityState>()(
       workspaces: [initialWorkspace],
       activeWorkspaceId: initialWorkspace.id,
       isAnalyzing: false,
+      selectSection: (section) =>
+        set((state) => ({
+          workspaces: updateWorkspaceById(state.workspaces, state.activeWorkspaceId, (workspace) =>
+            touchWorkspace({ ...workspace, activeSection: section }),
+          ),
+        })),
       createWorkspace: (name) =>
         set((state) => {
           const trimmedName = name.trim()
@@ -173,8 +182,14 @@ export const useClarityStore = create<ClarityState>()(
                 bundle,
                 activeReportId: firstReportId,
                 selectedCitationId: null,
+                activeSection: 'reports',
                 clickCount: workspace.clickCount + 1,
                 recentPrompts: appendRecentPrompt(workspace.recentPrompts, normalizedPrompt),
+                collaborationNotes: [
+                  `Strategy review generated at ${new Date().toLocaleString()}.`,
+                  `Evidence coverage now tracks ${bundle.reports[0]?.metrics.find((metric) => metric.id === 'M4')?.value ?? 'N/A'}.`,
+                  'Team alignment task: approve top two experiments before launch.',
+                ],
               }),
             ),
           }))
@@ -221,11 +236,29 @@ export const useClarityStore = create<ClarityState>()(
     }),
     {
       name: 'clarity-workspace-store',
-      version: 2,
+      version: 3,
       partialize: (state) => ({
         workspaces: state.workspaces,
         activeWorkspaceId: state.activeWorkspaceId,
       }),
+      migrate: (persistedState) => {
+        const state = persistedState as {
+          workspaces?: WorkspaceRecord[]
+          activeWorkspaceId?: string
+        }
+        const migratedWorkspaces =
+          state.workspaces?.map((workspace) => ({
+            ...workspace,
+            activeSection: workspace.activeSection ?? 'dashboard',
+            collaborationNotes: workspace.collaborationNotes ?? [],
+          })) ?? [initialWorkspace]
+
+        return {
+          workspaces: migratedWorkspaces,
+          activeWorkspaceId: state.activeWorkspaceId ?? migratedWorkspaces[0]?.id ?? initialWorkspace.id,
+          isAnalyzing: false,
+        }
+      },
     },
   ),
 )

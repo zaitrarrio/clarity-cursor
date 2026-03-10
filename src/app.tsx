@@ -3,6 +3,8 @@ import { EvidenceInspector } from '@/components/evidence-inspector'
 import { GlobalNavigationSidebar } from '@/components/global-navigation-sidebar'
 import { ReportSelector } from '@/components/report-selector'
 import { ReportViewer } from '@/components/report-viewer'
+import { WorkspaceModuleView } from '@/components/workspace-module-view'
+import { workspaceSectionMeta } from '@/lib/workspace-sections'
 import { useClarityStore } from '@/state/clarity-store'
 import '@/styles/index.css'
 
@@ -11,6 +13,7 @@ const App = () => {
     workspaces,
     activeWorkspaceId,
     isAnalyzing,
+    selectSection,
     createWorkspace,
     switchWorkspace,
     renameWorkspace,
@@ -28,7 +31,13 @@ const App = () => {
 
   const activeBundle = activeWorkspace?.bundle ?? null
   const activeReport =
-    activeBundle?.reports.find((report) => report.id === activeWorkspace?.activeReportId) ?? null
+    activeBundle?.reports.find((report) => report.id === activeWorkspace?.activeReportId) ??
+    activeBundle?.reports[0] ??
+    null
+
+  const activeSectionMeta = activeWorkspace
+    ? workspaceSectionMeta[activeWorkspace.activeSection]
+    : workspaceSectionMeta.dashboard
 
   return (
     <div className="workspace-grid">
@@ -38,7 +47,9 @@ const App = () => {
         onDeleteWorkspace={deleteWorkspace}
         onRenameWorkspace={renameWorkspace}
         onSelectPrompt={setPrompt}
+        onSelectSection={selectSection}
         onSwitchWorkspace={switchWorkspace}
+        activeSection={activeWorkspace?.activeSection ?? 'dashboard'}
         recentPrompts={activeWorkspace?.recentPrompts ?? []}
         workspaces={workspaces}
       />
@@ -48,10 +59,11 @@ const App = () => {
           <div>
             <p className="eyebrow">Enterprise Workspace</p>
             <h2>Strategic Intelligence and Go-To-Market Operating System</h2>
-            <p>Designed for summary → analysis → evidence → action decision workflows.</p>
+            <p>{activeSectionMeta.subtitle}</p>
           </div>
           <div className="chip-row">
             <span className="chip">{activeWorkspace?.name ?? 'No workspace selected'}</span>
+            <span className="chip">{activeSectionMeta.title}</span>
             <span className="chip">{activeBundle?.reports.length ?? 0} report templates</span>
             <span className="chip">Evidence-backed reporting standard</span>
           </div>
@@ -68,13 +80,22 @@ const App = () => {
           prompt={activeWorkspace?.prompt ?? ''}
         />
 
-        <ReportSelector
-          activeReportId={activeWorkspace?.activeReportId ?? null}
+        <WorkspaceModuleView
           onSelectReport={selectReport}
-          reports={activeBundle?.reports ?? []}
+          onSelectSection={selectSection}
+          workspace={activeWorkspace}
         />
 
-        <ReportViewer onOpenCitation={openCitation} report={activeReport} />
+        {activeWorkspace?.activeSection === 'reports' ? (
+          <>
+            <ReportSelector
+              activeReportId={activeWorkspace?.activeReportId ?? null}
+              onSelectReport={selectReport}
+              reports={activeBundle?.reports ?? []}
+            />
+            <ReportViewer onOpenCitation={openCitation} report={activeReport} />
+          </>
+        ) : null}
       </main>
 
       <EvidenceInspector
