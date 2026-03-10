@@ -8,14 +8,13 @@ import '@/styles/index.css'
 
 const App = () => {
   const {
-    prompt,
-    clickCount,
+    workspaces,
+    activeWorkspaceId,
     isAnalyzing,
-    bundle,
-    recentPrompts,
-    activeReportId,
-    selectedCitationId,
-    errorMessage,
+    createWorkspace,
+    switchWorkspace,
+    renameWorkspace,
+    deleteWorkspace,
     setPrompt,
     runAnalysis,
     selectReport,
@@ -24,11 +23,25 @@ const App = () => {
     applyExample,
   } = useClarityStore((state) => state)
 
-  const activeReport = bundle?.reports.find((report) => report.id === activeReportId) ?? null
+  const activeWorkspace =
+    workspaces.find((workspace) => workspace.id === activeWorkspaceId) ?? workspaces[0] ?? null
+
+  const activeBundle = activeWorkspace?.bundle ?? null
+  const activeReport =
+    activeBundle?.reports.find((report) => report.id === activeWorkspace?.activeReportId) ?? null
 
   return (
     <div className="workspace-grid">
-      <GlobalNavigationSidebar onSelectPrompt={setPrompt} recentPrompts={recentPrompts} />
+      <GlobalNavigationSidebar
+        activeWorkspaceId={activeWorkspaceId}
+        onCreateWorkspace={createWorkspace}
+        onDeleteWorkspace={deleteWorkspace}
+        onRenameWorkspace={renameWorkspace}
+        onSelectPrompt={setPrompt}
+        onSwitchWorkspace={switchWorkspace}
+        recentPrompts={activeWorkspace?.recentPrompts ?? []}
+        workspaces={workspaces}
+      />
 
       <main className="main-column">
         <header className="top-shell">
@@ -38,36 +51,37 @@ const App = () => {
             <p>Designed for summary → analysis → evidence → action decision workflows.</p>
           </div>
           <div className="chip-row">
-            <span className="chip">{bundle?.reports.length ?? 0} report templates</span>
+            <span className="chip">{activeWorkspace?.name ?? 'No workspace selected'}</span>
+            <span className="chip">{activeBundle?.reports.length ?? 0} report templates</span>
             <span className="chip">Evidence-backed reporting standard</span>
           </div>
         </header>
 
         <CommandCenter
-          clickCount={clickCount}
-          errorMessage={errorMessage}
+          clickCount={activeWorkspace?.clickCount ?? 0}
+          errorMessage={activeWorkspace?.errorMessage ?? null}
           isAnalyzing={isAnalyzing}
-          mode={bundle?.mode ?? null}
+          mode={activeBundle?.mode ?? null}
           onApplyExample={applyExample}
           onPromptChange={setPrompt}
           onRunAnalysis={runAnalysis}
-          prompt={prompt}
+          prompt={activeWorkspace?.prompt ?? ''}
         />
 
         <ReportSelector
-          activeReportId={activeReportId}
+          activeReportId={activeWorkspace?.activeReportId ?? null}
           onSelectReport={selectReport}
-          reports={bundle?.reports ?? []}
+          reports={activeBundle?.reports ?? []}
         />
 
         <ReportViewer onOpenCitation={openCitation} report={activeReport} />
       </main>
 
       <EvidenceInspector
-        bundle={bundle}
+        bundle={activeBundle}
         onCloseCitation={closeCitation}
         report={activeReport}
-        selectedCitationId={selectedCitationId}
+        selectedCitationId={activeWorkspace?.selectedCitationId ?? null}
       />
 
       {isAnalyzing ? (

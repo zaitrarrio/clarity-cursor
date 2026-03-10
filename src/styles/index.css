@@ -160,6 +160,83 @@ button {
   gap: 0.8rem;
 }
 
+.workspace-create-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.4rem;
+}
+
+.workspace-name-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(9, 15, 27, 0.8);
+  color: var(--foreground);
+  padding: 0.5rem;
+  font: inherit;
+}
+
+.workspace-create-button {
+  border: 1px solid rgba(79, 124, 255, 0.65);
+  border-radius: 10px;
+  background: linear-gradient(110deg, #4f7cff, #4f46e5);
+  color: var(--foreground);
+  padding: 0.45rem 0.65rem;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.workspace-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(9, 15, 27, 0.82);
+  padding: 0.4rem;
+}
+
+.workspace-switch {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--foreground);
+  text-align: left;
+  padding: 0.45rem;
+  cursor: pointer;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.workspace-switch small {
+  color: #9cb0ca;
+  font-size: 0.72rem;
+}
+
+.workspace-switch.active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.workspace-actions {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.workspace-action {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(12, 21, 36, 0.92);
+  color: #c9d8ed;
+  font-size: 0.7rem;
+  padding: 0.24rem 0.45rem;
+  cursor: pointer;
+}
+
+.workspace-action.delete {
+  border-color: rgba(249, 115, 115, 0.55);
+  color: #fca5a5;
+}
+
 .section-link,
 .history-entry,
 .report-tab,

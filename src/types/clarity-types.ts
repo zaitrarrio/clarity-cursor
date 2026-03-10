@@ -173,3 +173,17 @@ export interface AnalysisBundle {
   readonly topInsights: readonly string[]
   readonly globalActions: readonly string[]
 }
+
+export interface WorkspaceRecord {
+  readonly id: string
+  readonly name: string
+  readonly prompt: string
+  readonly clickCount: number
+  readonly bundle: AnalysisBundle | null
+  readonly recentPrompts: readonly string[]
+  readonly activeReportId: string | null
+  readonly selectedCitationId: number | null
+  readonly errorMessage: string | null
+  readonly createdAt: string
+  readonly updatedAt: string
+}
