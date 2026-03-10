@@ -4,24 +4,30 @@
 
 ### Repository overview
 
-This is a **design-phase** repository for **Clarity**, a Strategic Intelligence & Go-To-Market Operating System. It contains:
+**Clarity** is a Strategic Intelligence & Go-To-Market Operating System. The repo contains:
 
-- `clarity.html` — A self-contained static HTML/CSS prototype (~450 KB, ~8,900 lines) with ~35 screens/pages. Uses Tailwind CSS v4, Iconify, and Google Fonts loaded via CDN. Navigation is hash-based (`#page-*`).
-- `prd.md` — An auto-compiled PRD (~122 KB) combining product brief, feature hierarchy, domain model, UI flow, and architecture docs.
+- **Client:** React 19 + Vite 7 + TypeScript + Zustand (`src/`)
+- **Server:** Express 5 API with Perplexity research integration (`server/`)
+- **Prototype:** Static HTML prototype (`clarity.html`) and PRD (`prd.md`)
 
-There are **no build tools, package managers, linters, tests, or backend services**. No `package.json`, `Makefile`, `docker-compose.yml`, or similar exists.
+### Running the application
 
-### Running the prototype
+Standard npm scripts — see `package.json`:
 
-Serve the HTML file with any static HTTP server:
+| Command | What it does |
+|---------|-------------|
+| `npm run dev` | Starts both client (Vite, port 4173) and server (Express, port 8787) via `concurrently` |
+| `npm run build` | Runs `tsc -b && vite build`; output in `dist/` |
+| `npm run lint` | Runs ESLint across all `.ts`/`.tsx` files |
 
-```sh
-python3 -m http.server 8080
-```
+### Architecture notes
 
-Then open `http://localhost:8080/clarity.html` in a browser.
+- Vite proxies `/api` requests to `http://127.0.0.1:8787` (Express server).
+- The server uses the Perplexity API when `PERPLEXITY_API_KEY` is set; otherwise it returns fallback research data (app is fully functional without the key).
+- Path alias `@/` maps to `src/` (configured in both `tsconfig.app.json` and `vite.config.ts`).
 
 ### Gotchas
 
-- The prototype includes a modal overlay (`CreateProjectTaskBoard` section) that may render on top of other content when the page first loads. This is part of the prototype design — do **not** modify the file to hide it; simply navigate to a different page section via the left sidebar.
-- All external assets (Tailwind CSS, fonts, icons) are loaded from CDNs, so an internet connection is required for correct rendering.
+- The Express server file (`server/index.mjs`) is plain JS (not TypeScript) and uses `node --watch` for hot reloading. If you add new npm dependencies used by the server, you must restart the server process manually.
+- The static prototype (`clarity.html`) includes a modal overlay that may render on top of other content on first load. Navigate to a different page section via the left sidebar rather than modifying the file.
+- TypeScript strict mode is enabled with `noUnusedLocals` and `noUnusedParameters` — any new code must satisfy these checks.
